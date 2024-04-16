@@ -1,0 +1,14 @@
+[package]
+name = "google_generative_ai"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+reqwest = { version = "0.12.3", features = ["json"] }
+serde = { version = "1.0.197", features = ["derive"] }
+serde_json = "1.0.115"
+strum = "0.26.2"
+strum_macros = "0.26.2"
+tokio = { version = "1.37.0", features = ["full"] }
