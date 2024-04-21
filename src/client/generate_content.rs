@@ -1,20 +1,44 @@
-// use std::error::Error;
+use crate::{format_generate_content_input, GenerateContentRequest, GenerateContentResponse, Part};
 
-// use super::{GenAi, DEFAULT_API_VERSION, DEFAULT_URL};
-// use reqwest::Client;
-// use serde::{Deserialize, Serialize};
+use super::GenAiModel;
 
-// impl GenAi {
-//     pub async fn generate_content(&self) -> Result<(), Box<dyn Error>> {
-//         let url = format!(
-//             "{}/{}/{}:generateContent?key={}",
-//             DEFAULT_URL, DEFAULT_API_VERSION, self.model, self.api_key
-//         );
+#[derive(Clone)]
+pub enum ContentElement {
+    Text(String),
+    Part(Part),
+}
 
-//         let client = Client::new();
-//         // let response = client.post(url).query(&query_params).send().await?;
-//         // let result = response.json::<ListResponse>().await?;
+#[derive(Clone)]
+pub enum GenerateContentInput {
+    Text(String),
+    FullRequest(GenerateContentRequest),
+    List(Vec<ContentElement>),
+}
 
-//         Ok(())
-//     }
-// }
+pub struct GenerateContent {
+    model: GenAiModel,
+}
+
+impl GenerateContent {
+    pub(crate) fn new(model: GenAiModel) -> Self {
+        Self { model }
+    }
+
+    pub async fn send(
+        self,
+        input: GenerateContentInput,
+    ) -> anyhow::Result<GenerateContentResponse> {
+        let formatted_params = format_generate_content_input(input)?;
+        let url = self
+            .model
+            .client
+            .inner
+            .base_url
+            .join(&(self.model.inner.name.to_owned() + "/generateContent"))?;
+        let fetch = &self.model.client.inner.fetch;
+        let response = fetch.get(url).send().await?;
+        let result = response.json::<GenerateContentResponse>().await?;
+
+        Ok(result)
+    }
+}

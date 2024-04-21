@@ -1,6 +1,10 @@
+#[allow(unused_variables)]
+#[allow(dead_code)]
 mod client;
-mod error;
+mod request_helpers;
 mod types;
 
 pub use client::*;
-pub use error::*;
+use request_helpers::*;
+pub use serde_json::json;
+pub use types::*;

@@ -1,80 +1,53 @@
+mod builder;
+mod generate_content;
+mod get;
 mod list;
+mod model;
 
+use reqwest::{Client, Url};
+use std::sync::Arc;
+
+pub use builder::*;
+pub use generate_content::*;
+pub use get::*;
 pub use list::*;
-use reqwest::{
-    header::{HeaderMap, HeaderValue},
-    Client,
-};
-
-const DEFAULT_BASE_URL: &str = "https://generativelanguage.googleapis.com";
-const DEFAULT_API_VERSION: &str = "v1beta";
+pub use model::*;
 
 #[derive(Clone)]
 pub struct GenAiClient {
+    inner: Arc<GenAiClientRef>,
+}
+
+struct GenAiClientRef {
+    base_url: Url,
     fetch: Client,
-    headers: HeaderMap,
-    base_url: String,
-    api_version: String,
-}
-
-pub struct GenAiRequestBuilder {
-    client: GenAiClient,
-    model: GenAiModel,
-}
-
-#[derive(strum_macros::Display)]
-pub enum GenAiModel {
-    #[strum(serialize = "gemini-pro-vision")]
-    GeminiProVision,
-
-    #[strum(serialize = "gemini-pro")]
-    GeminiPro,
 }
 
 impl GenAiClient {
-    /// Constructs a new `GenAiClient`.
-    ///
-    /// If the argument contains invalid header value characters, it will panic.
-    /// Only visible ASCII characters (32-127) are permitted.
-    pub fn new(api_key: &str) -> Self {
-        let mut headers = HeaderMap::new();
-        let api_key = HeaderValue::from_str(api_key).expect("Valid api key.");
-        headers.insert("x-goog-api-key", api_key);
+    fn new(api_key: String) -> Self {
+        GenAiClientBuilder::from(api_key)
+            .build()
+            .expect("GenAiClient::new()")
+    }
 
-        let fetch = Client::new();
-
-        Self {
-            fetch,
-            headers,
-            base_url: DEFAULT_BASE_URL.to_string(),
-            api_version: DEFAULT_API_VERSION.to_string(),
+    pub fn build(&self, model: &str) -> GenAiModel {
+        GenAiModel {
+            client: self.clone(),
+            inner: Arc::new(GenAiModelRef {
+                name: model.to_string(),
+            }),
         }
-    }
-
-    pub fn base_url(mut self, url: &str) -> Self {
-        self.base_url = url.to_string();
-        self
-    }
-
-    pub fn api_version(mut self, version: &str) -> Self {
-        self.api_version = version.to_string();
-        self
-    }
-
-    pub fn model(&self, model: GenAiModel) -> GenAiRequestBuilder {
-        GenAiRequestBuilder::new(self, model)
     }
 }
 
-impl GenAiRequestBuilder {
-    fn new(client: &GenAiClient, model: GenAiModel) -> Self {
-        GenAiRequestBuilder {
-            client: client.clone(),
-            model,
-        }
+impl From<String> for GenAiClient {
+    fn from(api_key: String) -> Self {
+        GenAiClient::new(api_key)
     }
+}
 
-    pub fn list(&self) -> ListItem {
-        ListItem::new(self)
+impl From<&str> for GenAiClient {
+    fn from(api_key: &str) -> Self {
+        GenAiClient::new(api_key.to_string())
     }
 }

@@ -1,14 +1,14 @@
 use std::collections::HashMap;
 
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
-#[derive(Clone, Serialize)]
+#[derive(Clone, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct FunctionDeclarationsTool {
+pub struct Tool {
     pub function_declarations: Option<Vec<FunctionDeclaration>>,
 }
 
-#[derive(Clone, Serialize)]
+#[derive(Clone, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct FunctionDeclaration {
     pub name: String,
@@ -16,7 +16,7 @@ pub struct FunctionDeclaration {
     pub parameters: Option<FunctionDeclarationSchema>,
 }
 
-#[derive(Clone, Serialize)]
+#[derive(Clone, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct FunctionDeclarationSchema {
     #[serde(rename = "type")]
@@ -31,7 +31,7 @@ pub struct FunctionDeclarationSchema {
     pub items: Box<FunctionDeclarationSchema>,
 }
 
-#[derive(Clone, strum_macros::Display, Serialize)]
+#[derive(Clone, strum_macros::Display, Deserialize, Serialize)]
 pub enum FunctionDeclarationSchemaType {
     #[serde(rename = "STRING")]
     #[strum(serialize = "STRING")]
@@ -56,4 +56,32 @@ pub enum FunctionDeclarationSchemaType {
     #[serde(rename = "OBJECT")]
     #[strum(serialize = "OBJECT")]
     Object,
+}
+
+#[derive(Clone, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ToolConfig {
+    function_calling_config: Option<FunctionCallingConfig>,
+}
+
+#[derive(Clone, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct FunctionCallingConfig {
+    mode: Option<Mode>,
+    allowed_function_names: Option<Vec<String>>,
+}
+
+#[derive(Clone, strum_macros::Display, Deserialize, Serialize)]
+pub enum Mode {
+    #[serde(rename = "AUTO")]
+    #[strum(serialize = "AUTO")]
+    Auto,
+
+    #[serde(rename = "ANY")]
+    #[strum(serialize = "ANY")]
+    Any,
+
+    #[serde(rename = "NONE")]
+    #[strum(serialize = "NONE")]
+    None,
 }

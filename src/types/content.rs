@@ -1,13 +1,13 @@
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
-#[derive(Clone, Serialize)]
+#[derive(Clone, Deserialize, Serialize)]
 pub struct Content {
-    pub role: String,
     pub parts: Vec<Part>,
+    pub role: Option<String>,
 }
 
-#[derive(Clone, Serialize)]
+#[derive(Clone, Deserialize, Serialize)]
 pub enum Part {
     Text(TextPart),
     InlineData(InlineDataPart),
@@ -15,42 +15,42 @@ pub enum Part {
     FunctionResponse(FunctionResponsePart),
 }
 
-#[derive(Clone, Serialize)]
+#[derive(Clone, Deserialize, Serialize)]
 pub struct TextPart {
     pub text: String,
 }
 
-#[derive(Clone, Serialize)]
+#[derive(Clone, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct InlineDataPart {
     pub inline_data: GenerativeContentBlob,
 }
 
-#[derive(Clone, Serialize)]
+#[derive(Clone, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct FunctionCallPart {
     pub function_call: FunctionCall,
 }
 
-#[derive(Clone, Serialize)]
+#[derive(Clone, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct FunctionResponsePart {
     pub function_response: FunctionResponse,
 }
 
-#[derive(Clone, Serialize)]
+#[derive(Clone, Deserialize, Serialize)]
 pub struct FunctionCall {
     pub name: String,
     pub args: Value,
 }
 
-#[derive(Clone, Serialize)]
+#[derive(Clone, Deserialize, Serialize)]
 pub struct FunctionResponse {
     pub name: String,
     pub response: Value,
 }
 
-#[derive(Clone, Serialize)]
+#[derive(Clone, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct GenerativeContentBlob {
     pub mime_type: String,

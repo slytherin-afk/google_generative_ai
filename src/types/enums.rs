@@ -1,12 +1,33 @@
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
-#[derive(Clone, Serialize)]
-pub struct SafetySetting {
-    pub category: HarmCategory,
-    pub threshold: HarmBlockThreshold,
+#[derive(Clone, strum_macros::Display, Deserialize, Serialize)]
+pub enum FinishReason {
+    #[serde(rename = "FINISH_REASON_UNSPECIFIED")]
+    #[strum(serialize = "FINISH_REASON_UNSPECIFIED")]
+    FinishReasonUnspecified,
+
+    #[serde(rename = "STOP")]
+    #[strum(serialize = "STOP")]
+    Stop,
+
+    #[serde(rename = "MAX_TOKENS")]
+    #[strum(serialize = "MAX_TOKENS")]
+    MaxTokens,
+
+    #[serde(rename = "SAFETY")]
+    #[strum(serialize = "SAFETY")]
+    Safety,
+
+    #[serde(rename = "RECITATION")]
+    #[strum(serialize = "RECITATION")]
+    Recitation,
+
+    #[serde(rename = "OTHER")]
+    #[strum(serialize = "OTHER")]
+    Other,
 }
 
-#[derive(Clone, strum_macros::Display, Serialize)]
+#[derive(Clone, strum_macros::Display, Deserialize, Serialize)]
 pub enum HarmCategory {
     #[serde(rename = "HARM_CATEGORY_UNSPECIFIED")]
     #[strum(serialize = "HARM_CATEGORY_UNSPECIFIED")]
@@ -53,7 +74,7 @@ pub enum HarmCategory {
     HarmCategoryDangerousContent,
 }
 
-#[derive(Clone, strum_macros::Display, Serialize)]
+#[derive(Clone, strum_macros::Display, Deserialize, Serialize)]
 pub enum HarmBlockThreshold {
     #[serde(rename = "HARM_BLOCK_THRESHOLD_UNSPECIFIED")]
     #[strum(serialize = "HARM_BLOCK_THRESHOLD_UNSPECIFIED")]
@@ -74,4 +95,42 @@ pub enum HarmBlockThreshold {
     #[serde(rename = "BLOCK_NONE")]
     #[strum(serialize = "BLOCK_NONE")]
     BlockNone,
+}
+
+#[derive(Clone, strum_macros::Display, Deserialize, Serialize)]
+pub enum HarmProbability {
+    #[serde(rename = "HARM_PROBABILITY_UNSPECIFIED")]
+    #[strum(serialize = "HARM_PROBABILITY_UNSPECIFIED")]
+    HarmProbabilityUnspecified,
+
+    #[serde(rename = "NEGLIGIBLE")]
+    #[strum(serialize = "NEGLIGIBLE")]
+    Negligible,
+
+    #[serde(rename = "LOW")]
+    #[strum(serialize = "LOW")]
+    Low,
+
+    #[serde(rename = "MEDIUM")]
+    #[strum(serialize = "MEDIUM")]
+    Medium,
+
+    #[serde(rename = "HIGH")]
+    #[strum(serialize = "HIGH")]
+    High,
+}
+
+#[derive(Clone, strum_macros::Display, Deserialize, Serialize)]
+pub enum BlockReason {
+    #[serde(rename = "BLOCKED_REASON_UNSPECIFIED")]
+    #[strum(serialize = "BLOCKED_REASON_UNSPECIFIED")]
+    BlockedReasonUnspecified,
+
+    #[serde(rename = "SAFETY")]
+    #[strum(serialize = "SAFETY")]
+    Safety,
+
+    #[serde(rename = "OTHER")]
+    #[strum(serialize = "OTHER")]
+    Other,
 }
