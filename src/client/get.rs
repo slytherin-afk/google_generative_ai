@@ -1,10 +1,10 @@
-use crate::{types::Model, GenAiModel};
+use anyhow::Context;
+
+use crate::{GenAiModel, GetResponse};
 
 pub struct Get {
     model: GenAiModel,
 }
-
-type GetResponse = Model;
 
 impl Get {
     pub(crate) fn new(model: GenAiModel) -> Self {
@@ -19,8 +19,15 @@ impl Get {
             .base_url
             .join(&self.model.inner.name)?;
         let fetch = &self.model.client.inner.fetch;
-        let response = fetch.get(url).send().await?;
-        let result = response.json::<GetResponse>().await?;
+        let response = fetch
+            .get(url)
+            .send()
+            .await
+            .context("request failed to get model information")?;
+        let result = response
+            .json::<GetResponse>()
+            .await
+            .context("failed to deserialize get model response body")?;
 
         Ok(result)
     }

@@ -1,8 +1,9 @@
-use serde::{Deserialize, Serialize};
-
-use crate::Model;
+use anyhow::Context;
+use serde::Serialize;
 
 use super::GenAiModel;
+
+use crate::ListResponse;
 
 #[derive(Serialize)]
 struct ListQueryParams {
@@ -13,13 +14,6 @@ struct ListQueryParams {
 pub struct List {
     model: GenAiModel,
     query_params: ListQueryParams,
-}
-
-#[derive(Clone, Deserialize, Serialize)]
-#[serde(rename_all = "camelCase")]
-pub struct ListResponse {
-    pub models: Vec<Model>,
-    pub next_page_token: Option<String>,
 }
 
 impl List {
@@ -46,8 +40,16 @@ impl List {
     pub async fn send(self) -> anyhow::Result<ListResponse> {
         let url = self.model.client.inner.base_url.as_ref();
         let fetch = &self.model.client.inner.fetch;
-        let response = fetch.get(url).query(&self.query_params).send().await?;
-        let result = response.json::<ListResponse>().await?;
+        let response = fetch
+            .get(url)
+            .query(&self.query_params)
+            .send()
+            .await
+            .context("request failed to get list of models")?;
+        let result = response
+            .json::<ListResponse>()
+            .await
+            .context("failed to deserialize get model list response body")?;
 
         Ok(result)
     }

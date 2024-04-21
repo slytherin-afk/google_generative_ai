@@ -2,6 +2,22 @@ use serde::{Deserialize, Serialize};
 
 use super::{BlockReason, Content, FinishReason, HarmCategory, HarmProbability};
 
+pub type GetResponse = Model;
+
+#[derive(Clone, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ListResponse {
+    pub models: Vec<Model>,
+    pub next_page_token: Option<String>,
+}
+
+#[derive(Clone, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct GenerateContentResponse {
+    pub candidates: Option<Vec<Candidate>>,
+    pub prompt_feedback: Option<PromptFeedback>,
+}
+
 #[derive(Clone, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Model {
@@ -20,13 +36,6 @@ pub struct Model {
 
 #[derive(Clone, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct GenerateContentResponse {
-    pub candidates: Option<Vec<Candidate>>,
-    pub prompt_feedback: Option<PromptFeedback>,
-}
-
-#[derive(Clone, Deserialize, Serialize)]
-#[serde(rename_all = "camelCase")]
 pub struct PromptFeedback {
     pub block_reason: BlockReason,
     pub safety_ratings: Vec<SafetyRating>,
@@ -40,7 +49,7 @@ pub struct Candidate {
     pub finish_reason: Option<FinishReason>,
     pub safety_ratings: Option<Vec<SafetyRating>>,
     pub citation_metadata: Option<CitationMetadata>,
-    pub token_count: u32,
+    pub token_count: Option<u32>,
     pub index: u32,
 }
 
@@ -64,5 +73,5 @@ pub struct CitationSource {
 pub struct SafetyRating {
     pub category: HarmCategory,
     pub probability: HarmProbability,
-    pub blocked: bool,
+    pub blocked: Option<bool>,
 }

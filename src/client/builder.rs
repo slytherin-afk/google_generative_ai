@@ -1,5 +1,6 @@
 use std::sync::Arc;
 
+use anyhow::Context;
 use reqwest::{
     header::{HeaderMap, HeaderValue},
     ClientBuilder, Url,
@@ -25,18 +26,18 @@ impl GenAiClientBuilder {
     }
 
     pub fn build(self) -> anyhow::Result<GenAiClient> {
-        let base_url = Url::parse(&self.base_url)?;
+        let base_url = Url::parse(&self.base_url).context("failed to parse base url")?;
 
         let mut headers = HeaderMap::new();
-        let api_key = HeaderValue::from_str(&self.api_key)?;
+        let api_key = HeaderValue::from_str(&self.api_key)
+            .context("failed to convert api key to header value")?;
 
         headers.insert("x-goog-api-key", api_key);
-        headers.insert(
-            "x-super-secret-header",
-            HeaderValue::from_static("google please collab"),
-        );
 
-        let fetch = ClientBuilder::new().default_headers(headers).build()?;
+        let fetch = ClientBuilder::new()
+            .default_headers(headers)
+            .build()
+            .context("failed to create reqwest::Client")?;
 
         let gen_ai_client = GenAiClient {
             inner: Arc::new(GenAiClientRef { base_url, fetch }),

@@ -1,3 +1,5 @@
+use anyhow::Context;
+
 use crate::{format_generate_content_input, GenerateContentRequest, GenerateContentResponse, Part};
 
 use super::GenAiModel;
@@ -9,7 +11,7 @@ pub enum ContentElement {
 }
 
 #[derive(Clone)]
-pub enum GenerateContentInput {
+pub enum GenerateContentPrompt {
     Text(String),
     FullRequest(GenerateContentRequest),
     List(Vec<ContentElement>),
@@ -26,18 +28,29 @@ impl GenerateContent {
 
     pub async fn send(
         self,
-        input: GenerateContentInput,
+        prompt: GenerateContentPrompt,
     ) -> anyhow::Result<GenerateContentResponse> {
-        let formatted_params = format_generate_content_input(input)?;
-        let url = self
-            .model
-            .client
-            .inner
-            .base_url
-            .join(&(self.model.inner.name.to_owned() + "/generateContent"))?;
+        let url = format!(
+            "{}:generateContent",
+            self.model
+                .client
+                .inner
+                .base_url
+                .join(&self.model.inner.name)
+                .context("failed to parse url")?,
+        );
+        let formatted_params = format_generate_content_input(prompt)?;
         let fetch = &self.model.client.inner.fetch;
-        let response = fetch.get(url).send().await?;
-        let result = response.json::<GenerateContentResponse>().await?;
+        let response = fetch
+            .post(url)
+            .json(&formatted_params)
+            .send()
+            .await
+            .context("request to generate content failed")?;
+        let result = response
+            .json::<GenerateContentResponse>()
+            .await
+            .context("failed to deserialize generate content response body")?;
 
         Ok(result)
     }

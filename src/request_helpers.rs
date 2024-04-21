@@ -1,17 +1,17 @@
 use crate::{
-    Content, ContentElement, GenerateContentInput, GenerateContentRequest, Part, TextPart,
+    Content, ContentElement, GenerateContentPrompt, GenerateContentRequest, Part, TextPart,
 };
 
 pub(crate) fn format_generate_content_input(
-    input: GenerateContentInput,
+    prompt: GenerateContentPrompt,
 ) -> anyhow::Result<GenerateContentRequest> {
-    let content = match input {
-        GenerateContentInput::Text(text) => Content {
+    let content = match prompt {
+        GenerateContentPrompt::Text(text) => Content {
             parts: vec![Part::Text(TextPart { text })],
             role: Some("user".to_string()),
         },
-        GenerateContentInput::FullRequest(request) => return Ok(request),
-        GenerateContentInput::List(list) => {
+        GenerateContentPrompt::FullRequest(request) => return Ok(request),
+        GenerateContentPrompt::List(list) => {
             assign_role_to_parts_and_validate_send_message_request(list)?
         }
     };

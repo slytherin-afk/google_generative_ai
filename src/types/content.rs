@@ -8,6 +8,7 @@ pub struct Content {
 }
 
 #[derive(Clone, Deserialize, Serialize)]
+#[serde(untagged)]
 pub enum Part {
     Text(TextPart),
     InlineData(InlineDataPart),
